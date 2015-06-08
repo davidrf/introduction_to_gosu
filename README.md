@@ -161,7 +161,7 @@ image with a z coordinate of 1.
 
 The next step is to show the actual game when the user hits 'a'. We can do this by changing the view in the `#update` method whenever
 the user hits the 'a' button while in the menu view. This is easily done by using `Game::Window`'s `#button_down?` function and passing
-in the button to be pressed. A list of how to refer to the buttons is found in the [Gosu Module Doc page](https://www.libgosu.org/rdoc/Gosu.html#button_down%3F-class_method).
+in the button to be pressed. A list of the variable names used to refer to the buttons is found in the [Gosu Module Doc page](https://www.libgosu.org/rdoc/Gosu.html).
 
 ```ruby
   def update
