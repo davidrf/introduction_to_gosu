@@ -1,6 +1,6 @@
+require 'pry'
 require 'gosu'
+require_relative 'game_window'
 
-screen_width = 600
-screen_height = 900
-game_window = GameWindow.new(600, 900)
+game_window = GameWindow.new
 game_window.show
