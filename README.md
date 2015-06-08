@@ -323,7 +323,7 @@ Require the file in your `game.rb` file
 
 `require_relative 'ball'`
 
-Add the (ball image)[https://raw.githubusercontent.com/davidrf/introduction_to_gosu/master/images/ball.gif] to your images folder.
+Add the [ball image](https://raw.githubusercontent.com/davidrf/introduction_to_gosu/master/images/ball.gif) to your images folder.
 
 The Ball class is very similar to the paddle class, but it will also have velocity attributes.
 The `#update_position` method will utilize these velocities to recalculate the position of the ball.
