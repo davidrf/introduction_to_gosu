@@ -3,7 +3,7 @@ class GameWindow < Gosu::Window
   SCREEN_HEIGHT = 900
   FONT_HEIGHT_MEDIUM = 50
 
-  attr_accessor :view, :paddle
+  attr_accessor :view, :paddle, :ball, :previous_time
   attr_reader :menu_font
 
   def initialize
@@ -11,6 +11,8 @@ class GameWindow < Gosu::Window
     @view = :menu
     @menu_font = Gosu::Font.new(FONT_HEIGHT_MEDIUM)
     @paddle = Paddle.new(SCREEN_WIDTH / 2, 800, 0)
+    @ball = Ball.new(SCREEN_WIDTH / 2, 600, 0)
+    @previous_time = Gosu.milliseconds
   end
 
   def update
@@ -18,6 +20,7 @@ class GameWindow < Gosu::Window
       self.view = :game
     elsif view == :game
       paddle.x_coordinate = mouse_x
+      ball.update_position(time_elapsed)
     end
   end
 
@@ -26,6 +29,7 @@ class GameWindow < Gosu::Window
       draw_menu
     elsif view == :game
       paddle.draw
+      ball.draw
     end
   end
 
@@ -40,5 +44,12 @@ class GameWindow < Gosu::Window
       menu_font_y_coordinate,
       menu_font_z_coordinate
     )
+  end
+
+  def time_elapsed
+    current_time = Gosu.milliseconds
+    time_elapsed = current_time - previous_time
+    self.previous_time = current_time
+    time_elapsed
   end
 end

@@ -1,5 +1,9 @@
 # Introduction To Gosu
 ## Getting Started
+If you have not done so already. Install the Gosu gem.
+
+`$ gem install gosu`
+
 We first have to create a file which starts up the game when run.
 
 `$ touch game.rb`
@@ -145,11 +149,15 @@ def draw_menu
   )
 end
 ```
+To see what we have so far, simply execute
+
+`$ ruby game.rb`
+
 Something to note is the (0,0) coordinate is the top left corner of the screen. X increases from left to right, and Y increases
 from top to bottom. The z coordinate will refer to how to overlay images. An image with a z coordinate of 0 will be covered by another
 image with a z coordinate of 1.
 
-##Draw A Paddle
+##Create A Paddle
 
 The next step is to show the actual game when the user hits 'a'. We can do this by changing the view in the `#update` method whenever
 the user hits the 'a' button while in the menu view. This is easily done by using `Game::Window`'s `#button_down?` function and passing
@@ -164,6 +172,9 @@ in the button to be pressed. A list of how to refer to the buttons is found in t
 ```
 Let's make a rectangular paddle that moves to the x-coordinate of where the mouse pointer is located. First we need to create a Paddle object and with initial coordinates.
 ```ruby
+  attr_accessor :view, :paddle
+  attr_reader :menu_font
+
   def initialize
     super(SCREEN_WIDTH, SCREEN_HEIGHT)
     @view = :menu
@@ -237,5 +248,126 @@ end
 
 I have adjusted the x-coordinate of the image, so the x-coordinate of the object corresponds to the center of the image when it is drawn.
 
-Also we need to create a folder that will store all our images, and include the image of the paddle there.
-`mkdir images`
+Also we need to create a folder that will store all our images, and include the [image](https://raw.githubusercontent.com/davidrf/introduction_to_gosu/master/images/paddle.png) of the paddle there.
+
+`$ mkdir images`
+
+## Create A Ball
+
+Next we will create a ball that moves up the screen. We will initialize the ball with its initial coordinates.
+
+```ruby
+  attr_accessor :view, :paddle, :ball
+  attr_reader :menu_font
+
+  def initialize
+    super(SCREEN_WIDTH, SCREEN_HEIGHT)
+    @view = :menu
+    @menu_font = Gosu::Font.new(FONT_HEIGHT_MEDIUM)
+    @paddle = Paddle.new(SCREEN_WIDTH / 2, 800, 0)
+    @ball = Ball.new(SCREEN_WIDTH / 2, 600, 0)
+  end
+```
+
+We will want to update the ball's position based on how much time has passed.
+```ruby
+  def update
+    if view == :menu && button_down?(Gosu::KbA)
+      self.view = :game
+    elsif view == :game
+      paddle.x_coordinate = mouse_x
+      ball.update_position(time_elapsed)
+    end
+  end
+```
+We have to define the `#time_elapsed` method ourselves. We can get the number of milliseconds that have elapsed since
+the game was started by using `Gosu.milliseconds`. If we store the value in a variable and then call Gosu.milliseconds again, then
+the time elapsed is the difference between the latest Gosu.milliseconds return value and the value stored in a variable. The following code implements
+this method.
+```ruby
+  attr_accessor :view, :paddle, :ball, :previous_time
+  attr_reader :menu_font
+
+  def initialize
+    super(SCREEN_WIDTH, SCREEN_HEIGHT)
+    @view = :menu
+    @menu_font = Gosu::Font.new(FONT_HEIGHT_MEDIUM)
+    @paddle = Paddle.new(SCREEN_WIDTH / 2, 800, 0)
+    @ball = Ball.new(SCREEN_WIDTH / 2, 600, 0)
+    @previous_time = Gosu.milliseconds
+  end
+
+  def time_elapsed
+    current_time = Gosu.milliseconds
+    time_elapsed = current_time - previous_time
+    self.previous_time = current_time
+    time_elapsed
+  end
+```
+We also need to draw the ball in a similar way that we drew the paddle.
+```ruby
+  def draw
+    if view == :menu
+      draw_menu
+    elsif view == :game
+      paddle.draw
+      ball.draw
+    end
+  end
+```
+Now it is time to implement the Ball class. First create the file.
+
+`$ touch ball.rb`
+
+Require the file in your `game.rb` file
+
+`require_relative 'ball'`
+
+Add the (ball image)[https://raw.githubusercontent.com/davidrf/introduction_to_gosu/master/images/ball.gif] to your images folder.
+
+The Ball class is very similar to the paddle class, but it will also have velocity attributes.
+The `#update_position` method will utilize these velocities to recalculate the position of the ball.
+
+```ruby
+class Ball
+  attr_accessor :x_coordinate, :y_coordinate, :z_coordinate,
+                :velocity_x, :velocity_y, :image
+
+  def initialize(x_coordinate, y_coordinate, z_coordinate)
+    @x_coordinate = x_coordinate
+    @y_coordinate = y_coordinate
+    @z_coordinate = z_coordinate
+    @velocity_x = 0
+    @velocity_y = -0.1
+    @image = Gosu::Image.new("images/ball.gif")
+  end
+
+  def update_position(time_elapsed)
+    self.x_coordinate = x_coordinate + velocity_x * time_elapsed
+    self.y_coordinate = y_coordinate + velocity_y * time_elapsed
+  end
+
+  def draw
+    image.draw(image_x_coordinate, image_y_coordinate, z_coordinate)
+  end
+
+  def image_width
+    image.width
+  end
+
+  def image_height
+    image.height
+  end
+
+  def image_x_coordinate
+    x_coordinate - image_width / 2
+  end
+
+  def image_y_coordinate
+    y_coordinate - image_height / 2
+  end
+end
+```
+This concludes the Gosu Tutorial. You should now know enough of the framework to start creating your own games! Have fun!
+
+
